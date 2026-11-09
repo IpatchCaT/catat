@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#12332f">
+<title>Catat – Expense Recorder</title>
+<link rel="manifest" href="manifest.json">
+<style>
+:root{--bg:#eef3f1;--card:#fff;--ink:#12201e;--mute:#5f726e;--line:#d6e1de;--depo:#1b7f55;--kredit:#c0392b;--reserve:#b77a12;--hero:#12332f;--chip:#e3ecea;--onhero:#f2faf7;color-scheme:light}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0d1514;--card:#16211f;--ink:#e8f1ee;--mute:#8fa5a0;--line:#26362f;--depo:#3ecf94;--kredit:#ff7a68;--reserve:#e5b04a;--hero:#0a2421;--chip:#1f302d;color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);padding-top:env(safe-area-inset-top,0)}
+.num{font-variant-numeric:tabular-nums}
+.app{max-width:520px;margin:0 auto;padding-bottom:90px}
+.hero{background:var(--hero);color:var(--onhero);padding:18px 18px 22px;border-radius:0 0 26px 26px;transition:background .25s}
+.hero.in{background:#0f3d2b}.hero.out{background:#3a1a16}
+.top{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;opacity:.85}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:rgba(255,255,255,.12);border-radius:14px;padding:4px;margin:14px 0}
+.seg button{border:0;background:none;color:var(--onhero);font-family:inherit;font-weight:600;font-size:16px;padding:11px;border-radius:10px;cursor:pointer}
+.seg button[aria-pressed=true]{background:#fff;color:#12201e}
+.amt{display:flex;align-items:baseline;gap:8px}
+.amt span{font-size:22px;opacity:.8}
+.amt input{flex:1;min-width:0;background:none;border:0;border-bottom:2px solid rgba(255,255,255,.35);color:var(--onhero);font-family:inherit;font-weight:700;font-size:46px;padding:2px 0;outline:none}
+.amt input:focus{border-color:#fff}
+.amt input::placeholder{color:rgba(255,255,255,.35)}
+.sec{padding:16px 18px 0}
+label.t{display:block;font-size:14px;color:var(--mute);margin:0 0 6px}
+input.f,select.f{width:100%;font:inherit;padding:13px 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+input.f:focus,select.f:focus,button:focus-visible{outline:3px solid var(--depo);outline-offset:2px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--chip);color:var(--ink);padding:9px 14px;border-radius:999px;font:inherit;font-size:15px;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.rsv{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-top:16px}
+.rsv input{width:22px;height:22px;accent-color:var(--reserve)}
+.rsv small{display:block;color:var(--mute)}
+.save{position:fixed;left:0;right:0;bottom:0;padding:12px 18px calc(12px + env(safe-area-inset-bottom,0));background:linear-gradient(transparent,var(--bg) 35%)}
+.save button{display:block;width:100%;max-width:484px;margin:0 auto;border:0;border-radius:14px;padding:16px;font-family:inherit;font-weight:700;font-size:17px;color:#fff;background:var(--kredit);cursor:pointer}
+.save button.in{background:var(--depo)}
+.nav{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:12px 18px 0}
+.nav button{border:0;background:none;color:var(--mute);font-family:inherit;font-weight:600;font-size:15px;padding:10px 0;border-bottom:3px solid transparent;cursor:pointer}
+.nav button[aria-selected=true]{color:var(--ink);border-color:var(--ink)}
+.row{display:flex;justify-content:space-between;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:8px}
+.row b{display:block;word-break:break-word}.row small{color:var(--mute)}
+.v{font-weight:700;white-space:nowrap;text-align:right}
+.v.in{color:var(--depo)}.v.out{color:var(--kredit)}
+.tag{display:inline-block;font-size:12px;padding:1px 8px;border-radius:99px;margin-left:6px}
+.tag.r{background:var(--reserve);color:#fff}.tag.q{background:var(--mute);color:var(--bg)}
+.mini{border:1px solid var(--line);background:none;color:var(--ink);border-radius:8px;padding:5px 10px;font:inherit;font-size:13px;margin-top:6px;cursor:pointer}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.stat small{color:var(--mute)}.stat div{font-size:22px;font-weight:700}
+.bar{height:8px;background:var(--chip);border-radius:9px;overflow:hidden;margin:4px 0 12px}
+.bar i{display:block;height:100%;background:var(--kredit)}
+h3{margin:18px 0 8px;font-size:17px}
+.note{color:var(--mute);font-size:14px}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:15px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:5}
+.toast.show{opacity:1}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:12px 14px;font:inherit;cursor:pointer;margin:4px 6px 4px 0}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hero out" id="hero">
+    <div class="top"><span id="monthLabel"></span><span class="num" id="net"></span></div>
+    <div class="seg" role="group" aria-label="Entry type">
+      <button id="bOut" aria-pressed="true">Kredit (out)</button>
+      <button id="bIn" aria-pressed="false">Depo (in)</button>
+    </div>
+    <div class="amt"><span id="cur">RM</span><input id="amount" inputmode="decimal" placeholder="0.00" aria-label="Total amount" autocomplete="off"></div>
+  </div>
+
+  <nav class="nav" role="tablist">
+    <button role="tab" data-tab="rec" aria-selected="true">Record</button>
+    <button role="tab" data-tab="led" aria-selected="false">Ledger</button>
+    <button role="tab" data-tab="sum" aria-selected="false">Month</button>
+    <button role="tab" data-tab="set" aria-selected="false">Setup</button>
+  </nav>
+
+  <section id="rec" class="sec">
+    <label class="t" for="ref">Reference</label>
+    <input class="f" id="ref" placeholder="e.g. Lunch with team, Grab, Salary" autocomplete="off">
+    <div style="margin-top:16px"><label class="t">Account</label><div class="chips" id="accChips"></div></div>
+    <div style="margin-top:16px"><label class="t">Category</label><div class="chips" id="catChips"></div></div>
+    <label class="rsv"><input type="checkbox" id="reserve"><span><b>Reserve (pay later)</b><small>Counts as owed until you settle it, e.g. ShopeePayLater</small></span></label>
+  </section>
+
+  <section id="led" class="sec" hidden>
+    <div id="list"></div>
+  </section>
+
+  <section id="sum" class="sec" hidden>
+    <div class="grid">
+      <div class="stat"><small>Depo</small><div class="num" id="sIn"></div></div>
+      <div class="stat"><small>Kredit</small><div class="num" id="sOut"></div></div>
+      <div class="stat"><small>Net</small><div class="num" id="sNet"></div></div>
+      <div class="stat"><small>Reserved, unpaid</small><div class="num" id="sRes"></div></div>
+    </div>
+    <h3>Spending by category</h3><div id="byCat"></div>
+    <h3>Spending by account</h3><div id="byAcc"></div>
+    <p class="note">Reserved items are counted in Kredit when recorded. Settling one logs the payment, so nothing is double counted in Net.</p>
+  </section>
+
+  <section id="set" class="sec" hidden>
+    <label class="t" for="url">Google Sheet link (Apps Script web app URL)</label>
+    <input class="f" id="url" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off">
+    <div style="margin-top:14px" class="grid">
+      <div><label class="t" for="ccy">Currency</label><input class="f" id="ccy" maxlength="4"></div>
+      <div><label class="t" for="addAcc">Add account</label><input class="f" id="addAcc" placeholder="e.g. Touch 'n Go"></div>
+    </div>
+    <div style="margin-top:12px"><button class="btn" id="saveSet">Save setup</button><button class="btn" id="sync">Send waiting entries</button><button class="btn" id="csv">Export CSV</button></div>
+    <p class="note" id="queueNote"></p>
+    <p class="note">Entries are kept on this phone first, then sent to your sheet. If you are offline, they wait and send automatically later.</p>
+  </section>
+</div>
+
+<div class="save"><button id="save">Save expense</button></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let cfg=store.get('cfg',{url:'',ccy:'RM',accounts:['Cash','Bank','ShopeePayLater','Creative']});
+let ledger=store.get('ledger',[]);
+let queue=store.get('queue',[]);
+const cats=['Food','Transport','Bills','Shopping','Health','Family','Work','Other'];
+let type='Kredit',acc=cfg.accounts[0],cat='';
+const money=n=>cfg.ccy+' '+Number(n).toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2});
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pad=n=>String(n).padStart(2,'0');
+const dKey=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const tKey=d=>pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('show'),2200)}
+function persist(){store.set('ledger',ledger);store.set('queue',queue);store.set('cfg',cfg)}
+
+function chips(el,items,cur,pick,allowNone){
+  el.innerHTML='';
+  items.forEach(x=>{const b=document.createElement('button');b.className='chip';b.type='button';b.textContent=x;b.setAttribute('aria-pressed',x===cur);b.onclick=()=>{pick(allowNone&&x===cur?'':x)};el.appendChild(b)});
+}
+function drawChips(){chips($('#accChips'),cfg.accounts,acc,v=>{acc=v;drawChips()});chips($('#catChips'),cats,cat,v=>{cat=v;drawChips()},true)}
+function setType(t){type=t;const i=t==='Depo';$('#hero').className='hero '+(i?'in':'out');$('#bIn').setAttribute('aria-pressed',i);$('#bOut').setAttribute('aria-pressed',!i);$('#save').className=i?'in':'';$('#save').textContent=i?'Save deposit':'Save expense';$('#reserve').closest('label').hidden=i;if(i)$('#reserve').checked=false}
+$('#bIn').onclick=()=>setType('Depo');$('#bOut').onclick=()=>setType('Kredit');
+
+function mk(o){const n=new Date();return Object.assign({id:n.getTime().toString(36)+Math.random().toString(36).slice(2,5),date:dKey(n),time:tKey(n)},o)}
+function add(rec){ledger.unshift(rec);queue.push(rec);persist();render();flush()}
+
+$('#save').onclick=()=>{
+  const v=parseFloat(String($('#amount').value).replace(/,/g,''));
+  if(!(v>0)){toast('Enter the total amount first');$('#amount').focus();return}
+  const reserved=$('#reserve').checked&&type==='Kredit';
+  add(mk({type,value:v,ref:$('#ref').value.trim()||'(no reference)',account:acc,category:cat,status:reserved?'Reserved':'Paid'}));
+  $('#amount').value='';$('#ref').value='';$('#reserve').checked=false;cat='';drawChips();toast('Saved');
+};
+
+function settle(id){
+  const o=ledger.find(x=>x.id===id);if(!o||o.status!=='Reserved')return;
+  o.status='Settled';
+  add(mk({type:'Kredit',value:o.value,ref:'Settle: '+o.ref,account:'Bank',category:o.category,status:'Paid'}));
+  toast('Marked as settled');
+}
+window.settle=settle;
+
+async function flush(){
+  if(!cfg.url||!queue.length||!navigator.onLine)return render();
+  const rest=[];
+  for(const r of queue){
+    try{await fetch(cfg.url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(r)})}
+    catch(e){rest.push(r)}
+  }
+  queue=rest;persist();render();
+}
+
+function render(){
+  const now=new Date(),ym=dKey(now).slice(0,7);
+  $('#monthLabel').textContent=now.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+  $('#cur').textContent=cfg.ccy;
+  const m=ledger.filter(x=>x.date.startsWith(ym));
+  const inn=m.filter(x=>x.type==='Depo').reduce((a,x)=>a+x.value,0);
+  const out=m.filter(x=>x.type==='Kredit').reduce((a,x)=>a+x.value,0);
+  const res=ledger.filter(x=>x.status==='Reserved').reduce((a,x)=>a+x.value,0);
+  $('#net').textContent='Net '+money(inn-out);
+  $('#sIn').textContent=money(inn);$('#sOut').textContent=money(out);$('#sNet').textContent=money(inn-out);$('#sRes').textContent=money(res);
+  const group=(key)=>{const g={};m.filter(x=>x.type==='Kredit'&&!x.ref.startsWith('Settle:')).forEach(x=>{const k=x[key]||'Uncategorised';g[k]=(g[k]||0)+x.value});const mx=Math.max(1,...Object.values(g));return Object.entries(g).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="num">${esc(k)} <b style="float:right">${money(v)}</b></div><div class="bar"><i style="width:${v/mx*100}%"></i></div>`).join('')||'<p class="note">Nothing recorded this month yet.</p>'};
+  $('#byCat').innerHTML=group('category');$('#byAcc').innerHTML=group('account');
+  const waiting=new Set(queue.map(q=>q.id));
+  $('#list').innerHTML=ledger.slice(0,100).map(x=>`<div class="row"><div><b>${esc(x.ref)}${x.status==='Reserved'?'<span class="tag r">Reserved</span>':''}${x.status==='Settled'?'<span class="tag q">Settled</span>':''}${waiting.has(x.id)?'<span class="tag q">Waiting</span>':''}</b><small>${x.date} ${x.time.slice(0,5)} · ${esc(x.account)}${x.category?' · '+esc(x.category):''}</small>${x.status==='Reserved'?`<br><button class="mini" onclick="settle('${x.id}')">Mark as settled</button>`:''}</div><div class="v num ${x.type==='Depo'?'in':'out'}">${x.type==='Depo'?'+':'−'}${money(x.value)}</div></div>`).join('')||'<p class="note">No entries yet. Record your first one on the Record tab.</p>';
+  $('#queueNote').textContent=queue.length?queue.length+' entries waiting to reach your sheet.':(cfg.url?'All entries sent to your sheet.':'No sheet linked yet. Entries stay on this phone.');
+}
+
+document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.nav button').forEach(x=>x.setAttribute('aria-selected',x===b));
+  ['rec','led','sum','set'].forEach(id=>$('#'+id).hidden=id!==b.dataset.tab);
+  $('#save').parentElement.hidden=b.dataset.tab!=='rec';
+});
+
+$('#url').value=cfg.url;$('#ccy').value=cfg.ccy;
+$('#saveSet').onclick=()=>{
+  cfg.url=$('#url').value.trim();cfg.ccy=$('#ccy').value.trim()||'RM';
+  const a=$('#addAcc').value.trim();if(a&&!cfg.accounts.includes(a))cfg.accounts.push(a);$('#addAcc').value='';
+  persist();drawChips();render();flush();toast('Setup saved');
+};
+$('#sync').onclick=()=>{flush();toast('Sending…')};
+$('#csv').onclick=()=>{
+  const rows=[['Time','Date','Type','Value','Reference','Account','Category','Status','ID'],...ledger.slice().reverse().map(x=>[x.time,x.date,x.type,x.value,x.ref,x.account,x.category,x.status,x.id])];
+  const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='ledger-'+dKey(new Date())+'.csv';a.click();
+};
+addEventListener('online',flush);
+drawChips();setType('Kredit');render();flush();
+</script>
+</body>
+</html>
