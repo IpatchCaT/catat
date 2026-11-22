@@ -1,215 +1,43 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#12332f">
-<title>Catat – Expense Recorder</title>
-<link rel="manifest" href="manifest.json">
-<style>
-:root{--bg:#eef3f1;--card:#fff;--ink:#12201e;--mute:#5f726e;--line:#d6e1de;--depo:#1b7f55;--kredit:#c0392b;--reserve:#b77a12;--hero:#12332f;--chip:#e3ecea;--onhero:#f2faf7;color-scheme:light}
-@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0d1514;--card:#16211f;--ink:#e8f1ee;--mute:#8fa5a0;--line:#26362f;--depo:#3ecf94;--kredit:#ff7a68;--reserve:#e5b04a;--hero:#0a2421;--chip:#1f302d;color-scheme:dark}}
-*{box-sizing:border-box}
-html,body{margin:0;height:100%}
-body{font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);padding-top:env(safe-area-inset-top,0)}
-.num{font-variant-numeric:tabular-nums}
-.app{max-width:520px;margin:0 auto;padding-bottom:90px}
-.hero{background:var(--hero);color:var(--onhero);padding:18px 18px 22px;border-radius:0 0 26px 26px;transition:background .25s}
-.hero.in{background:#0f3d2b}.hero.out{background:#3a1a16}
-.top{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;opacity:.85}
-.seg{display:grid;grid-template-columns:1fr 1fr;background:rgba(255,255,255,.12);border-radius:14px;padding:4px;margin:14px 0}
-.seg button{border:0;background:none;color:var(--onhero);font-family:inherit;font-weight:600;font-size:16px;padding:11px;border-radius:10px;cursor:pointer}
-.seg button[aria-pressed=true]{background:#fff;color:#12201e}
-.amt{display:flex;align-items:baseline;gap:8px}
-.amt span{font-size:22px;opacity:.8}
-.amt input{flex:1;min-width:0;background:none;border:0;border-bottom:2px solid rgba(255,255,255,.35);color:var(--onhero);font-family:inherit;font-weight:700;font-size:46px;padding:2px 0;outline:none}
-.amt input:focus{border-color:#fff}
-.amt input::placeholder{color:rgba(255,255,255,.35)}
-.sec{padding:16px 18px 0}
-label.t{display:block;font-size:14px;color:var(--mute);margin:0 0 6px}
-input.f,select.f{width:100%;font:inherit;padding:13px 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
-input.f:focus,select.f:focus,button:focus-visible{outline:3px solid var(--depo);outline-offset:2px}
-.chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{border:1px solid var(--line);background:var(--chip);color:var(--ink);padding:9px 14px;border-radius:999px;font:inherit;font-size:15px;cursor:pointer}
-.chip[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.rsv{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-top:16px}
-.rsv input{width:22px;height:22px;accent-color:var(--reserve)}
-.rsv small{display:block;color:var(--mute)}
-.save{position:fixed;left:0;right:0;bottom:0;padding:12px 18px calc(12px + env(safe-area-inset-bottom,0));background:linear-gradient(transparent,var(--bg) 35%)}
-.save button{display:block;width:100%;max-width:484px;margin:0 auto;border:0;border-radius:14px;padding:16px;font-family:inherit;font-weight:700;font-size:17px;color:#fff;background:var(--kredit);cursor:pointer}
-.save button.in{background:var(--depo)}
-.nav{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:12px 18px 0}
-.nav button{border:0;background:none;color:var(--mute);font-family:inherit;font-weight:600;font-size:15px;padding:10px 0;border-bottom:3px solid transparent;cursor:pointer}
-.nav button[aria-selected=true]{color:var(--ink);border-color:var(--ink)}
-.row{display:flex;justify-content:space-between;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:8px}
-.row b{display:block;word-break:break-word}.row small{color:var(--mute)}
-.v{font-weight:700;white-space:nowrap;text-align:right}
-.v.in{color:var(--depo)}.v.out{color:var(--kredit)}
-.tag{display:inline-block;font-size:12px;padding:1px 8px;border-radius:99px;margin-left:6px}
-.tag.r{background:var(--reserve);color:#fff}.tag.q{background:var(--mute);color:var(--bg)}
-.mini{border:1px solid var(--line);background:none;color:var(--ink);border-radius:8px;padding:5px 10px;font:inherit;font-size:13px;margin-top:6px;cursor:pointer}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
-.stat small{color:var(--mute)}.stat div{font-size:22px;font-weight:700}
-.bar{height:8px;background:var(--chip);border-radius:9px;overflow:hidden;margin:4px 0 12px}
-.bar i{display:block;height:100%;background:var(--kredit)}
-h3{margin:18px 0 8px;font-size:17px}
-.note{color:var(--mute);font-size:14px}
-.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:15px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:5}
-.toast.show{opacity:1}
-.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:12px 14px;font:inherit;cursor:pointer;margin:4px 6px 4px 0}
-@media(prefers-reduced-motion:reduce){*{transition:none!important}}
-[hidden]{display:none!important}
-</style>
-</head>
-<body>
-<div class="app">
-  <div class="hero out" id="hero">
-    <div class="top"><span id="monthLabel"></span><span class="num" id="net"></span></div>
-    <div class="seg" role="group" aria-label="Entry type">
-      <button id="bOut" aria-pressed="true">Kredit (out)</button>
-      <button id="bIn" aria-pressed="false">Depo (in)</button>
-    </div>
-    <div class="amt"><span id="cur">RM</span><input id="amount" inputmode="decimal" placeholder="0.00" aria-label="Total amount" autocomplete="off"></div>
-  </div>
-
-  <nav class="nav" role="tablist">
-    <button role="tab" data-tab="rec" aria-selected="true">Record</button>
-    <button role="tab" data-tab="led" aria-selected="false">Ledger</button>
-    <button role="tab" data-tab="sum" aria-selected="false">Month</button>
-    <button role="tab" data-tab="set" aria-selected="false">Setup</button>
-  </nav>
-
-  <section id="rec" class="sec">
-    <label class="t" for="ref">Reference</label>
-    <input class="f" id="ref" placeholder="e.g. Lunch with team, Grab, Salary" autocomplete="off">
-    <div style="margin-top:16px"><label class="t">Account</label><div class="chips" id="accChips"></div></div>
-    <div style="margin-top:16px"><label class="t">Category</label><div class="chips" id="catChips"></div></div>
-    <label class="rsv"><input type="checkbox" id="reserve"><span><b>Reserve (pay later)</b><small>Counts as owed until you settle it, e.g. ShopeePayLater</small></span></label>
-  </section>
-
-  <section id="led" class="sec" hidden>
-    <div id="list"></div>
-  </section>
-
-  <section id="sum" class="sec" hidden>
-    <div class="grid">
-      <div class="stat"><small>Depo</small><div class="num" id="sIn"></div></div>
-      <div class="stat"><small>Kredit</small><div class="num" id="sOut"></div></div>
-      <div class="stat"><small>Net</small><div class="num" id="sNet"></div></div>
-      <div class="stat"><small>Reserved, unpaid</small><div class="num" id="sRes"></div></div>
-    </div>
-    <h3>Spending by category</h3><div id="byCat"></div>
-    <h3>Spending by account</h3><div id="byAcc"></div>
-    <p class="note">Reserved items are counted in Kredit when recorded. Settling one logs the payment, so nothing is double counted in Net.</p>
-  </section>
-
-  <section id="set" class="sec" hidden>
-    <label class="t" for="url">Google Sheet link (Apps Script web app URL)</label>
-    <input class="f" id="url" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off">
-    <div style="margin-top:14px" class="grid">
-      <div><label class="t" for="ccy">Currency</label><input class="f" id="ccy" maxlength="4"></div>
-      <div><label class="t" for="addAcc">Add account</label><input class="f" id="addAcc" placeholder="e.g. Touch 'n Go"></div>
-    </div>
-    <div style="margin-top:12px"><button class="btn" id="saveSet">Save setup</button><button class="btn" id="sync">Send waiting entries</button><button class="btn" id="csv">Export CSV</button></div>
-    <p class="note" id="queueNote"></p>
-    <p class="note">Entries are kept on this phone first, then sent to your sheet. If you are offline, they wait and send automatically later.</p>
-  </section>
-</div>
-
-<div class="save"><button id="save">Save expense</button></div>
-<div class="toast" id="toast" role="status"></div>
-
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#081426"><title>Catat · Expense Recorder</title><style>
+:root{font-family:Inter,system-ui,'Segoe UI',sans-serif;color:#eaf3ff;background:#071322;font-synthesis:none}*{box-sizing:border-box}body{margin:0}button,input,select,textarea{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #4fa8ff;outline-offset:2px}.app{display:flex;min-height:100vh}.sidebar{width:244px;flex-shrink:0;background:linear-gradient(155deg,#102c4f,#09182d 60%);border-right:1px solid #223e5d;padding:26px 14px;display:flex;flex-direction:column;gap:24px}.brand{display:flex;align-items:center;gap:12px;font-weight:800;font-size:21px;padding:6px 12px}.brand-icon{font-size:34px}.menu{display:grid;gap:8px}.menu button{width:100%;border:0;background:transparent;color:#b8cee9;text-align:left;padding:13px 15px;border-radius:11px;font-weight:650}.menu button.active,.menu button:hover{background:linear-gradient(100deg,#086de3,#15447e);color:white}.sidebar-foot{margin-top:auto;color:#91afce;font-size:12px;padding:12px;line-height:1.7}.main{flex:1;min-width:0;max-width:1600px;margin:0 auto;padding:28px 28px 50px}.header{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:26px}.header h1{font-size:34px;margin:0}.subtitle{color:#afc3df;margin:4px 0 0}.header-actions{display:flex;align-items:center;gap:10px}input,select,textarea{background:#0b2038;color:#eaf3ff;border:1px solid #365371;border-radius:10px;padding:12px;width:100%}input[type=date]{color-scheme:dark}.range{display:flex;gap:7px;align-items:center}.range input{width:148px}.btn{border:1px solid #365a83;background:#12345a;color:#eaf3ff;border-radius:10px;padding:11px 15px;font-weight:650}.btn.primary{background:#086ce3;border-color:#1686ff}.btn.green{background:#095947;border-color:#13866b}.btn.purple{background:#443078;border-color:#7150b8}.btn.red{background:#6e293a;border-color:#a3485d}.btn:hover{filter:brightness(1.17)}.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}.card,.panel{background:linear-gradient(140deg,#122943,#0b1c32);border:1px solid #28496c;border-radius:19px;box-shadow:0 8px 24px #0002}.card{padding:21px;min-height:134px;display:flex;gap:14px;align-items:flex-start}.card .ico{font-size:26px;padding:11px;border-radius:14px;background:#1a4265}.card small{display:block;color:#a9c6e3;font-size:15px;margin:5px 0 8px}.card strong{font-size:26px;white-space:nowrap}.card.in{background:linear-gradient(135deg,#073b36,#102b38);border-color:#126352}.card.out{background:linear-gradient(135deg,#44202d,#19253b);border-color:#643449}.card.budget{background:linear-gradient(135deg,#352258,#1a233d);border-color:#513c83}.progress{height:11px;background:#42506a;border-radius:20px;overflow:hidden;margin-top:12px}.progress span{display:block;height:100%;background:#bd70ff}.dashgrid{display:grid;grid-template-columns:1.25fr 1fr;gap:18px;margin-top:20px}.panel{padding:22px;min-width:0}.panel h2{font-size:21px;margin:0 0 18px}.chart{height:250px;width:100%;display:block}.donut-wrap{display:flex;align-items:center;gap:25px;min-height:250px}.donut{width:205px;height:205px;flex-shrink:0;border-radius:50%;display:grid;place-items:center;background:conic-gradient(#34516e 0 100%)}.donut-hole{width:125px;height:125px;background:#0d2138;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-weight:800}.donut-hole small{font-weight:400;color:#b8cce5}.legend{flex:1;min-width:0}.legend-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0;font-size:13px}.legend-name{display:flex;align-items:center;gap:8px;min-width:0}.dot{height:11px;width:11px;flex-shrink:0;border-radius:3px}.muted{color:#a4b8d0}.tx{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #263e5b}.tx:last-child{border-bottom:0}.tx-icon{font-size:23px;background:#183958;border-radius:12px;padding:10px}.tx-main{flex:1;min-width:0}.tx-main b{display:block;overflow-wrap:anywhere}.tx-main small{color:#a4b8d0}.money{font-weight:750;white-space:nowrap}.negative{color:#ff708b}.positive{color:#4de0ab}.quick{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.quick button{padding:26px 8px;border-radius:15px;font-weight:700;display:grid;gap:10px;justify-items:center}.quick span{font-size:30px}.page{display:none}.page.active{display:block}.page-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px}.page-head h2{margin:0}.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}.toolbar input,.toolbar select{max-width:240px}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;text-align:left}th,td{padding:14px 12px;border-bottom:1px solid #29425d}th{color:#a9c6e3;font-size:13px}td{font-size:14px}.empty{color:#a8bed9;padding:22px 0}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{display:grid;gap:6px}.field.full{grid-column:1/-1}.field label{color:#b7cbe5;font-size:13px}.modal-bg{position:fixed;inset:0;background:#020a14d9;display:none;align-items:center;justify-content:center;padding:16px;z-index:5}.modal-bg.open{display:flex}.modal{background:#11253d;border:1px solid #37608a;border-radius:18px;padding:24px;width:min(540px,100%);max-height:94vh;overflow:auto}.modal h2{margin:0 0 20px}.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}.notice{background:#102e49;border:1px solid #345a7c;border-radius:12px;padding:14px;color:#bfd3eb;line-height:1.6}.notice strong{color:#fff}.setting-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:650px}.setting-row label{display:grid;gap:8px;color:#b9cee7}.toast{position:fixed;right:24px;bottom:20px;background:#1364a8;color:#fff;border-radius:10px;padding:13px 20px;display:none;z-index:10}.toast.show{display:block}.mobile-top{display:none}@media(max-width:1150px){.cards{grid-template-columns:repeat(2,1fr)}.dashgrid{grid-template-columns:1fr}.donut-wrap{justify-content:space-around}}@media(max-width:700px){.app{display:block}.sidebar{width:100%;padding:10px;display:block;border-right:0}.brand{font-size:17px;padding:5px}.brand-icon{font-size:24px}.menu{display:flex;overflow-x:auto;gap:3px}.menu button{width:auto;white-space:nowrap;padding:10px 12px;font-size:13px}.sidebar-foot{display:none}.main{padding:20px 14px 40px}.header{align-items:flex-start;flex-direction:column}.header h1{font-size:28px}.header-actions,.range{width:100%}.range input{width:50%;min-width:0}.cards{gap:10px}.card{padding:13px;min-height:115px;gap:8px}.card .ico{font-size:19px;padding:7px}.card strong{font-size:19px}.card small{font-size:12px}.panel{padding:15px}.donut-wrap{flex-direction:column}.legend{width:100%}.quick{gap:7px}.quick button{font-size:12px;padding:17px 4px}.form-grid,.setting-row{grid-template-columns:1fr}.field.full{grid-column:auto}}
+</style></head><body><div class="app"><aside class="sidebar"><div class="brand"><span class="brand-icon">👛</span><span>Catat<br>Expense Recorder</span></div><nav class="menu" id="menu"><button class="active" data-page="dashboard">▥ &nbsp; Dashboard</button><button data-page="transactions">▤ &nbsp; Transactions</button><button data-page="categories">▦ &nbsp; Categories</button><button data-page="reports">▥ &nbsp; Reports</button><button data-page="budget">◎ &nbsp; Budget</button><button data-page="notifications">♧ &nbsp; Notifications</button><button data-page="settings">⚙ &nbsp; Settings</button></nav><div class="sidebar-foot">Your entries stay in this browser.<br>Export backups regularly.</div></aside><main class="main"><header class="header"><div><h1 id="pageTitle">Dashboard</h1><p class="subtitle" id="pageSub">Track your spending, manage your budget, and stay in control.</p></div><div class="header-actions"><div class="range"><input id="from" type="date" aria-label="Start date"><input id="to" type="date" aria-label="End date"></div></div></header>
+<section id="dashboard" class="page active"><div class="cards"><div class="card in"><div class="ico">↗</div><div><small>Total Income</small><strong id="income">RM 0.00</strong></div></div><div class="card out"><div class="ico">↘</div><div><small>Total Expense</small><strong id="expense">RM 0.00</strong></div></div><div class="card"><div class="ico">◈</div><div><small>Balance</small><strong id="balance">RM 0.00</strong></div></div><div class="card budget"><div class="ico">◎</div><div style="width:100%"><small>Budget Used</small><strong id="budgetPct">—</strong><div class="progress"><span id="budgetBar" style="width:0%"></span></div></div></div></div><div class="dashgrid"><div class="panel"><h2>⌁ &nbsp; Expense Trend</h2><svg id="trend" class="chart" viewBox="0 0 620 250" role="img" aria-label="Expense trend line chart"></svg></div><div class="panel"><h2>◇ &nbsp; Expense by Category</h2><div class="donut-wrap"><div class="donut" id="donut"><div class="donut-hole"><span id="donutTotal">RM 0.00</span><small>Total Expense</small></div></div><div class="legend" id="legend"></div></div></div><div class="panel"><div class="page-head"><h2>☷ &nbsp; Recent Transactions</h2><button class="btn" data-go="transactions">View All →</button></div><div id="recent"></div></div><div class="panel"><h2>ϟ &nbsp; Quick Actions</h2><div class="quick"><button class="btn primary" data-add="Kredit"><span>⊕</span>Add Expense</button><button class="btn green" data-add="Depo"><span>⇄</span>Add Income</button><button class="btn purple" data-go="reports"><span>▥</span>View Report</button></div><div class="notice" style="margin-top:18px">📱 <strong>Phone notification capture</strong><br>Paste or share bank notification text to review a suggested transaction. Automatic background capture requires an Android companion integration.</div><button class="btn" data-go="notifications" style="margin-top:12px">Import notification →</button></div></div></section>
+<section id="transactions" class="page"><div class="page-head"><h2>Transaction History</h2><button class="btn primary" data-add="Kredit">+ New Transaction</button></div><div class="panel"><div class="toolbar"><input id="search" placeholder="Search reference or account"><select id="typeFilter"><option value="">All types</option><option value="Kredit">Expense</option><option value="Depo">Income</option></select><button class="btn" id="exportCsv">Export CSV</button></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Reference</th><th>Category</th><th>Account</th><th>Status</th><th>Amount</th><th>Action</th></tr></thead><tbody id="rows"></tbody></table></div></div></section>
+<section id="categories" class="page"><div class="page-head"><h2>Categories</h2></div><div class="panel"><div id="categoryList"></div><p class="muted">Categories are assigned when you add or import a transaction.</p></div></section>
+<section id="reports" class="page"><div class="page-head"><h2>Reports</h2><button class="btn" id="exportReport">Export CSV</button></div><div class="cards" style="margin-bottom:18px"><div class="card in"><div><small>Income</small><strong id="reportIncome"></strong></div></div><div class="card out"><div><small>Expense</small><strong id="reportExpense"></strong></div></div><div class="card"><div><small>Net</small><strong id="reportNet"></strong></div></div><div class="card"><div><small>Unpaid Reserve</small><strong id="reportReserve"></strong></div></div></div><div class="panel"><h2>Spending by Account</h2><div id="accountList"></div></div></section>
+<section id="budget" class="page"><div class="panel"><h2>Monthly Spending Budget</h2><p class="muted">Set a monthly limit. Dashboard budget usage is calculated for the selected date range against the monthly budget, prorated for the number of calendar days selected.</p><div class="setting-row"><label>Monthly budget (RM)<input type="number" min="0" step="0.01" id="budgetInput"></label></div><button class="btn primary" id="saveBudget" style="margin-top:15px">Save Budget</button><h2 style="margin-top:26px">Usage for selected period</h2><div id="budgetDetails"></div></div></section>
+<section id="notifications" class="page"><div class="panel"><h2>Import Phone Notification</h2><p class="muted">Paste an SMS, banking app, or e-wallet notification. The app attempts to identify an amount, transaction direction, merchant and account. Always review before saving.</p><div class="field"><label for="notifText">Notification text</label><textarea id="notifText" rows="6" placeholder="Example: RM 15.00 debited from your account for payment at ABC CAFE on 22/11/2026."></textarea></div><div class="toolbar" style="margin-top:12px"><button class="btn primary" id="parseNotification">Review transaction</button><button class="btn" id="pasteClipboard">Paste clipboard</button></div><div class="panel" style="margin:18px 0;background:#0c263f"><h2>Android · Pending Review <span id="pendingCount" class="muted"></span></h2><p class="muted">Connect your secure receiver in Settings, then fetch detected transactions. Nothing is added to your ledger until you confirm it.</p><button class="btn primary" id="refreshInbox">Check Android notifications</button><div id="pendingInbox" aria-live="polite"><p class="empty">Connect a receiver to view pending transactions.</p></div></div><div class="notice"><strong>Important:</strong> A normal website or GitHub Pages PWA cannot read Android or iPhone notifications in the background. Android automatic import needs a notification-listener app/automation and a secure receiver or user-approved handoff. iPhone does not offer general third-party notification reading. No notification permissions are requested by this website.</div></div></section>
+<section id="settings" class="page"><div class="panel"><h2>Settings & Data</h2><div class="setting-row"><label>Currency<input id="currency" maxlength="5"></label><label>Add account<input id="newAccount" placeholder="e.g. Maybank"></label></div><div class="toolbar" style="margin-top:14px"><button class="btn primary" id="saveSettings">Save settings</button><button class="btn" id="backup">Download JSON backup</button><button class="btn" id="restoreBtn">Restore JSON backup</button><input type="file" accept=".json,application/json" id="restoreFile" hidden></div><p class="muted">Existing local ledger entries from your previous Catat page are retained. Google Sheets sync settings are kept, but this redesign does not send data automatically; use CSV/JSON exports. Data is local to this browser and device.</p><div id="accountsDisplay" class="muted"></div><hr style="border:0;border-top:1px solid #345a7c;margin:25px 0"><h2>Android Notification Bridge</h2><p class="muted">Deploy the separate HTTPS receiver first. The dashboard token is different from the Android ingest token. Tokens are held in this browser session, not saved in backups. Never put tokens into GitHub files.</p><div class="setting-row"><label>Receiver HTTPS URL<input id="bridgeUrl" placeholder="https://your-receiver.example"></label><label>Dashboard review token<input id="bridgeToken" type="password" autocomplete="off" placeholder="Review token"></label></div><div class="toolbar" style="margin-top:12px"><button class="btn primary" id="connectBridge">Connect for this session</button><button class="btn" id="disconnectBridge">Disconnect</button></div><p id="bridgeStatus" class="muted">Not connected.</p></div></section>
+</main></div><div class="modal-bg" id="modalBg"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><h2 id="modalTitle">New Expense</h2><form id="entryForm"><div class="form-grid"><div class="field"><label>Type</label><select id="entryType"><option value="Kredit">Expense</option><option value="Depo">Income</option></select></div><div class="field"><label>Amount</label><input id="entryAmount" type="number" min="0.01" step="0.01" required></div><div class="field full"><label>Reference / merchant</label><input id="entryRef" required></div><div class="field"><label>Account</label><select id="entryAccount"></select></div><div class="field"><label>Category</label><select id="entryCategory"></select></div><div class="field"><label>Date</label><input type="date" id="entryDate" required></div><div class="field"><label>Time</label><input type="time" id="entryTime" required></div><div class="field full"><label><input type="checkbox" id="entryReserve" style="width:auto"> Reserve / pay later</label></div><div class="field full" id="sourceBox" hidden><label>Source notification (for reference)</label><textarea id="entrySource" rows="3" readonly></textarea></div></div><div class="modal-actions"><button type="button" class="btn" id="cancelModal">Cancel</button><button type="submit" class="btn primary">Save Transaction</button></div></form></div></div><div class="toast" id="toast"></div>
 <script>
-const $=s=>document.querySelector(s);
-const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
-let cfg=store.get('cfg',{url:'',ccy:'RM',accounts:['Cash','Bank','ShopeePayLater','Creative']});
-let ledger=store.get('ledger',[]);
-let queue=store.get('queue',[]);
-const cats=['Food','Transport','Bills','Shopping','Health','Family','Work','Other'];
-let type='Kredit',acc=cfg.accounts[0],cat='';
-const money=n=>cfg.ccy+' '+Number(n).toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2});
-const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const pad=n=>String(n).padStart(2,'0');
-const dKey=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
-const tKey=d=>pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
-function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('show'),2200)}
-function persist(){store.set('ledger',ledger);store.set('queue',queue);store.set('cfg',cfg)}
+'use strict';const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];const get=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}},put=(k,v)=>localStorage.setItem(k,JSON.stringify(v));let cfg=get('cfg',{ccy:'RM',accounts:['Cash','Bank','ShopeePayLater','Creative']});cfg.ccy||='RM';cfg.accounts=Array.isArray(cfg.accounts)&&cfg.accounts.length?cfg.accounts:['Cash','Bank'];let ledger=get('ledger',[]);if(!Array.isArray(ledger))ledger=[];let budget=Number(get('catat_budget',2000));const cats=['Food & Drinks','Transport','Groceries','Utilities','Shopping','Health','Family','Work','Others'];const colors=['#ff4e85','#3196ff','#22ca92','#ffc21c','#a26cff','#ec8e58','#4fc9d4','#b5c8e9','#7c8ba4'];const pad=n=>String(n).padStart(2,'0');const day=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;const money=n=>cfg.ccy+' '+Number(n||0).toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2});const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const expense=x=>x.type==='Kredit'&&!String(x.ref||'').startsWith('Settle:');const income=x=>x.type==='Depo';const sum=a=>a.reduce((n,x)=>n+Number(x.value||0),0);const today=new Date();$('#from').value=day(new Date(today.getFullYear(),today.getMonth(),1));$('#to').value=day(new Date(today.getFullYear(),today.getMonth()+1,0));function toast(t){$('#toast').textContent=t;$('#toast').classList.add('show');setTimeout(()=>$('#toast').classList.remove('show'),2800)}function persist(){put('ledger',ledger);put('cfg',cfg)}function selected(){let a=$('#from').value,b=$('#to').value;return ledger.filter(x=>x.date>=a&&x.date<=b)}function groups(items,key){let g={};items.forEach(x=>{let k=x[key]||'Uncategorised';g[k]=(g[k]||0)+Number(x.value||0)});return Object.entries(g).sort((a,b)=>b[1]-a[1])}function dateRangeDays(){const a=new Date($('#from').value+'T12:00:00'),b=new Date($('#to').value+'T12:00:00');if(isNaN(a)||isNaN(b)||a>b)return 0;let n=0;for(let d=new Date(a);d<=b;d.setDate(d.getDate()+1))n+=1/new Date(d.getFullYear(),d.getMonth()+1,0).getDate();return n}function nav(page){$$('.page').forEach(x=>x.classList.toggle('active',x.id===page));$$('.menu button').forEach(x=>x.classList.toggle('active',x.dataset.page===page));$('#pageTitle').textContent=page==='notifications'?'Phone Notifications':page[0].toUpperCase()+page.slice(1);$('#pageSub').textContent=page==='dashboard'?'Track your spending, manage your budget, and stay in control.':'Review and manage your expense records.';render()}$$('[data-page]').forEach(b=>b.onclick=()=>nav(b.dataset.page));$$('[data-go]').forEach(b=>b.onclick=()=>nav(b.dataset.go));function chart(items){const svg=$('#trend');const start=new Date($('#from').value+'T12:00:00'),end=new Date($('#to').value+'T12:00:00');if(!(start<=end)){svg.innerHTML='<text x="30" y="100" fill="#a9c6e3">Select a valid date range</text>';return}let days=[];for(let d=new Date(start);d<=end&&days.length<370;d.setDate(d.getDate()+1))days.push(day(d));let by={};items.forEach(x=>by[x.date]=(by[x.date]||0)+Number(x.value));let vals=days.map(d=>by[d]||0),max=Math.max(1,...vals),w=580,h=195,x0=32,y0=15;let x=i=>x0+(days.length===1?w/2:i*w/(days.length-1)),y=v=>y0+h-v/max*h;let path=vals.map((v,i)=>(i?'L':'M')+x(i).toFixed(1)+','+y(v).toFixed(1)).join(' ');let grid=Array.from({length:5},(_,i)=>{let yy=y0+i*h/4;return `<line x1="32" y1="${yy}" x2="612" y2="${yy}" stroke="#2b425e"/><text x="2" y="${yy+4}" fill="#9eb6d1" font-size="11">${Math.round(max*(4-i)/4)}</text>`}).join('');let ticks=[0,Math.floor((days.length-1)/2),days.length-1].filter((v,i,a)=>a.indexOf(v)===i).map(i=>`<text x="${x(i)}" y="236" fill="#9eb6d1" font-size="12" text-anchor="middle">${days[i]?.slice(5)||''}</text>`).join('');svg.innerHTML=`<defs><linearGradient id="fade" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#278aff" stop-opacity=".45"/><stop offset="1" stop-color="#278aff" stop-opacity="0"/></linearGradient></defs>${grid}<path d="${path} L${x(vals.length-1)},210 L${x(0)},210 Z" fill="url(#fade)"/><path d="${path}" fill="none" stroke="#39a4ff" stroke-width="3" stroke-linejoin="round"/>${vals.length<=35?vals.map((v,i)=>`<circle cx="${x(i)}" cy="${y(v)}" r="3" fill="#b7e9ff"/>`).join(''):''}${ticks}`}
+function render(){if($('#from').value>$('#to').value)return;let items=selected(),ins=items.filter(income),outs=items.filter(expense),inTotal=sum(ins),outTotal=sum(outs),allowed=budget*dateRangeDays(),pct=allowed?outTotal/allowed*100:0;$('#income').textContent=money(inTotal);$('#expense').textContent=money(outTotal);$('#balance').textContent=money(inTotal-outTotal);$('#budgetPct').textContent=allowed?Math.round(pct)+'%':'Not set';$('#budgetBar').style.width=Math.min(100,pct)+'%';$('#budgetBar').style.background=pct>100?'#ff708b':'#bd70ff';$('#donutTotal').textContent=money(outTotal);let gr=groups(outs,'category'),angle=0,stops=[];gr.forEach(([k,v],i)=>{let end=angle+v/outTotal*100;stops.push(`${colors[i%colors.length]} ${angle}% ${end}%`);angle=end});$('#donut').style.background=stops.length?'conic-gradient('+stops.join(',')+')':'#233e5c';$('#legend').innerHTML=gr.length?gr.map(([k,v],i)=>`<div class="legend-row"><span class="legend-name"><i class="dot" style="background:${colors[i%colors.length]}"></i>${esc(k)}</span><b>${money(v)} <span class="muted">(${Math.round(v/outTotal*100)}%)</span></b></div>`).join(''):'<p class="muted">No expenses in this period.</p>';chart(outs);$('#recent').innerHTML=items.slice().sort((a,b)=>(b.date+' '+b.time).localeCompare(a.date+' '+a.time)).slice(0,4).map(x=>`<div class="tx"><div class="tx-icon">${income(x)?'💰':'🧾'}</div><div class="tx-main"><b>${esc(x.ref)}</b><small>${esc(x.category||'Uncategorised')} · ${esc(x.date)} ${esc((x.time||'').slice(0,5))}</small></div><span class="money ${income(x)?'positive':'negative'}">${income(x)?'+':'−'}${money(x.value)}</span></div>`).join('')||'<p class="empty">No transactions for the selected period.</p>';$('#reportIncome').textContent=money(inTotal);$('#reportExpense').textContent=money(outTotal);$('#reportNet').textContent=money(inTotal-outTotal);$('#reportReserve').textContent=money(sum(ledger.filter(x=>x.status==='Reserved')));$('#accountList').innerHTML=groupHTML(groups(outs,'account'),outTotal);$('#categoryList').innerHTML=groupHTML(gr,outTotal);$('#budgetDetails').textContent=`${money(outTotal)} spent of ${money(allowed)} budget for this date range (${Math.round(pct||0)}%).`;$('#budgetInput').value=budget;$('#currency').value=cfg.ccy;$('#accountsDisplay').textContent='Accounts: '+cfg.accounts.join(', ');renderRows()}
+function groupHTML(g,total){return g.map(([k,v],i)=>`<div class="legend-row"><span>${esc(k)}</span><b>${money(v)} · ${total?Math.round(v/total*100):0}%</b></div><div class="progress"><span style="width:${total?v/total*100:0}%;background:${colors[i%colors.length]}"></span></div>`).join('')||'<p class="empty">No spending in this period.</p>'}function renderRows(){let q=$('#search').value.toLowerCase(),t=$('#typeFilter').value;let arr=selected().filter(x=>(!t||x.type===t)&&[x.ref,x.account,x.category].join(' ').toLowerCase().includes(q)).sort((a,b)=>(b.date+' '+b.time).localeCompare(a.date+' '+a.time));$('#rows').innerHTML=arr.map(x=>`<tr><td>${esc(x.date)}<br><small class="muted">${esc(x.time||'')}</small></td><td>${esc(x.ref)}</td><td>${esc(x.category||'—')}</td><td>${esc(x.account)}</td><td>${esc(x.status)}</td><td class="money ${income(x)?'positive':'negative'}">${income(x)?'+':'−'}${money(x.value)}</td><td><button class="btn red" data-delete="${esc(x.id)}">Delete</button></td></tr>`).join('')||'<tr><td colspan="7" class="empty">No matching transactions.</td></tr>';$$('[data-delete]').forEach(b=>b.onclick=()=>{if(confirm('Delete this transaction?')){ledger=ledger.filter(x=>x.id!==b.dataset.delete);persist();render()}})}$('#search').oninput=renderRows;$('#typeFilter').onchange=renderRows;$('#from').onchange=render;$('#to').onchange=render;
+function openForm(t='Kredit',data={}){$('#modalBg').classList.add('open');$('#modalTitle').textContent=t==='Depo'?'Add Income':'Add Expense';$('#entryType').value=t;$('#entryAmount').value=data.value||'';$('#entryRef').value=data.ref||'';$('#entryAccount').innerHTML=cfg.accounts.map(x=>`<option>${esc(x)}</option>`).join('');$('#entryAccount').value=cfg.accounts.includes(data.account)?data.account:cfg.accounts[0];$('#entryCategory').innerHTML='<option value="">Uncategorised</option>'+cats.map(x=>`<option>${esc(x)}</option>`).join('');$('#entryCategory').value=cats.includes(data.category)?data.category:'';let now=new Date();$('#entryDate').value=data.date||day(now);$('#entryTime').value=data.time||`${pad(now.getHours())}:${pad(now.getMinutes())}`;$('#entryReserve').checked=false;$('#entrySource').value=data.source||'';$('#sourceBox').hidden=!data.source;$('#entryAmount').focus()}$$('[data-add]').forEach(b=>b.onclick=()=>openForm(b.dataset.add));function closeForm(){$('#modalBg').classList.remove('open')}$('#cancelModal').onclick=closeForm;$('#modalBg').onclick=e=>{if(e.target.id==='modalBg')closeForm()};$('#entryForm').onsubmit=e=>{e.preventDefault();let v=Number($('#entryAmount').value);if(!Number.isFinite(v)||v<=0)return toast('Enter a valid amount');let t=$('#entryType').value,now=new Date();let x={id:now.getTime().toString(36)+Math.random().toString(36).slice(2,7),date:$('#entryDate').value,time:$('#entryTime').value+':00',type:t,value:v,ref:$('#entryRef').value.trim()||'Unspecified',account:$('#entryAccount').value,category:$('#entryCategory').value,status:$('#entryReserve').checked&&t==='Kredit'?'Reserved':'Paid'};if($('#entrySource').value)x.sourceNotification=$('#entrySource').value;ledger.unshift(x);persist();closeForm();render();toast('Transaction saved')};
+function parseNotification(s){let match=s.match(/(?:RM|MYR)\s*([\d,]+(?:\.\d{1,2})?)/i)||s.match(/([\d,]+\.\d{2})\s*(?:RM|MYR)/i);if(!match)return null;let value=Number(match[1].replace(/,/g,''));if(!value)return null;let credit=/\b(credited|received|deposit(?:ed)?|salary|cashback|incoming|money in)\b/i.test(s)&&!/\b(debited|spent|paid|purchase|payment made|withdrawn|transfer out)\b/i.test(s);let merchant=s.match(/(?:at|to|merchant[:\s]+)\s+([\w &.'-]{2,45}?)(?=\s+(?:on|at|via|using|from|ref|reference)\b|[.,\n]|$)/i);let ref=merchant?.[1]?.trim()||s.replace(/\s+/g,' ').slice(0,65);let account=cfg.accounts.find(a=>s.toLowerCase().includes(a.toLowerCase()))||cfg.accounts[0];let category=/petrol|fuel|grab|transport|toll|parking/i.test(s)?'Transport':/cafe|restaurant|food|lunch|dinner|coffee/i.test(s)?'Food & Drinks':/grocery|mart|supermarket/i.test(s)?'Groceries':/electric|water|utility|bill/i.test(s)?'Utilities':'';return{value,ref,account,category,source:s}}
+$('#parseNotification').onclick=()=>{let s=$('#notifText').value.trim();if(!s)return toast('Paste notification text first');let parsed=parseNotification(s);if(!parsed)return toast('No RM amount detected. Please add manually.');openForm(/\b(credited|received|deposit(?:ed)?|salary|cashback|incoming|money in)\b/i.test(s)&&!/\b(debited|spent|paid|purchase|payment made|withdrawn|transfer out)\b/i.test(s)?'Depo':'Kredit',parsed)};$('#pasteClipboard').onclick=async()=>{try{$('#notifText').value=await navigator.clipboard.readText();toast('Pasted from clipboard')}catch{toast('Clipboard blocked. Paste manually.')}};
+$('#saveBudget').onclick=()=>{budget=Math.max(0,Number($('#budgetInput').value)||0);put('catat_budget',budget);render();toast('Budget saved')};$('#saveSettings').onclick=()=>{cfg.ccy=$('#currency').value.trim()||'RM';let a=$('#newAccount').value.trim();if(a&&!cfg.accounts.includes(a))cfg.accounts.push(a);$('#newAccount').value='';persist();render();toast('Settings saved')};function download(name,body,mime){let u=URL.createObjectURL(new Blob([body],{type:mime})),a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),500)}function csv(){let data=[['Date','Time','Type','Amount','Reference','Account','Category','Status','ID'],...selected().map(x=>[x.date,x.time,x.type,x.value,x.ref,x.account,x.category,x.status,x.id])];download('catat-transactions.csv',data.map(r=>r.map(c=>'"'+String(c??'').replace(/"/g,'""')+'"').join(',')).join('\r\n'),'text/csv;charset=utf-8')}$('#exportCsv').onclick=csv;$('#exportReport').onclick=csv;$('#backup').onclick=()=>download('catat-backup.json',JSON.stringify({version:2,cfg,ledger,budget},null,2),'application/json');$('#restoreBtn').onclick=()=>$('#restoreFile').click();$('#restoreFile').onchange=async e=>{try{let obj=JSON.parse(await e.target.files[0].text());if(!Array.isArray(obj.ledger))throw Error('Missing ledger');if(!confirm('Replace current transactions with this backup?'))return;ledger=obj.ledger;cfg=obj.cfg||cfg;budget=Number(obj.budget??budget);persist();put('catat_budget',budget);render();toast('Backup restored')}catch{toast('Invalid backup file')}e.target.value=''};
+// Accept text shared into the PWA through a URL query; user must initiate the share.
+const qs=new URLSearchParams(location.search);let shared=qs.get('text')||qs.get('body');if(shared){$('#notifText').value=shared;nav('notifications')}render();
 
-function chips(el,items,cur,pick,allowNone){
-  el.innerHTML='';
-  items.forEach(x=>{const b=document.createElement('button');b.className='chip';b.type='button';b.textContent=x;b.setAttribute('aria-pressed',x===cur);b.onclick=()=>{pick(allowNone&&x===cur?'':x)};el.appendChild(b)});
-}
-function drawChips(){chips($('#accChips'),cfg.accounts,acc,v=>{acc=v;drawChips()});chips($('#catChips'),cats,cat,v=>{cat=v;drawChips()},true)}
-function setType(t){type=t;const i=t==='Depo';$('#hero').className='hero '+(i?'in':'out');$('#bIn').setAttribute('aria-pressed',i);$('#bOut').setAttribute('aria-pressed',!i);$('#save').className=i?'in':'';$('#save').textContent=i?'Save deposit':'Save expense';$('#reserve').closest('label').hidden=i;if(i)$('#reserve').checked=false}
-$('#bIn').onclick=()=>setType('Depo');$('#bOut').onclick=()=>setType('Kredit');
-
-function mk(o){const n=new Date();return Object.assign({id:n.getTime().toString(36)+Math.random().toString(36).slice(2,5),date:dKey(n),time:tKey(n)},o)}
-function add(rec){ledger.unshift(rec);queue.push(rec);persist();render();flush()}
-
-$('#save').onclick=()=>{
-  const v=parseFloat(String($('#amount').value).replace(/,/g,''));
-  if(!(v>0)){toast('Enter the total amount first');$('#amount').focus();return}
-  const reserved=$('#reserve').checked&&type==='Kredit';
-  add(mk({type,value:v,ref:$('#ref').value.trim()||'(no reference)',account:acc,category:cat,status:reserved?'Reserved':'Paid'}));
-  $('#amount').value='';$('#ref').value='';$('#reserve').checked=false;cat='';drawChips();toast('Saved');
-};
-
-function settle(id){
-  const o=ledger.find(x=>x.id===id);if(!o||o.status!=='Reserved')return;
-  o.status='Settled';
-  add(mk({type:'Kredit',value:o.value,ref:'Settle: '+o.ref,account:'Bank',category:o.category,status:'Paid'}));
-  toast('Marked as settled');
-}
-window.settle=settle;
-
-async function flush(){
-  if(!cfg.url||!queue.length||!navigator.onLine)return render();
-  const rest=[];
-  for(const r of queue){
-    try{await fetch(cfg.url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(r)})}
-    catch(e){rest.push(r)}
-  }
-  queue=rest;persist();render();
-}
-
-function render(){
-  const now=new Date(),ym=dKey(now).slice(0,7);
-  $('#monthLabel').textContent=now.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
-  $('#cur').textContent=cfg.ccy;
-  const m=ledger.filter(x=>x.date.startsWith(ym));
-  const inn=m.filter(x=>x.type==='Depo').reduce((a,x)=>a+x.value,0);
-  const out=m.filter(x=>x.type==='Kredit').reduce((a,x)=>a+x.value,0);
-  const res=ledger.filter(x=>x.status==='Reserved').reduce((a,x)=>a+x.value,0);
-  $('#net').textContent='Net '+money(inn-out);
-  $('#sIn').textContent=money(inn);$('#sOut').textContent=money(out);$('#sNet').textContent=money(inn-out);$('#sRes').textContent=money(res);
-  const group=(key)=>{const g={};m.filter(x=>x.type==='Kredit'&&!x.ref.startsWith('Settle:')).forEach(x=>{const k=x[key]||'Uncategorised';g[k]=(g[k]||0)+x.value});const mx=Math.max(1,...Object.values(g));return Object.entries(g).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="num">${esc(k)} <b style="float:right">${money(v)}</b></div><div class="bar"><i style="width:${v/mx*100}%"></i></div>`).join('')||'<p class="note">Nothing recorded this month yet.</p>'};
-  $('#byCat').innerHTML=group('category');$('#byAcc').innerHTML=group('account');
-  const waiting=new Set(queue.map(q=>q.id));
-  $('#list').innerHTML=ledger.slice(0,100).map(x=>`<div class="row"><div><b>${esc(x.ref)}${x.status==='Reserved'?'<span class="tag r">Reserved</span>':''}${x.status==='Settled'?'<span class="tag q">Settled</span>':''}${waiting.has(x.id)?'<span class="tag q">Waiting</span>':''}</b><small>${x.date} ${x.time.slice(0,5)} · ${esc(x.account)}${x.category?' · '+esc(x.category):''}</small>${x.status==='Reserved'?`<br><button class="mini" onclick="settle('${x.id}')">Mark as settled</button>`:''}</div><div class="v num ${x.type==='Depo'?'in':'out'}">${x.type==='Depo'?'+':'−'}${money(x.value)}</div></div>`).join('')||'<p class="note">No entries yet. Record your first one on the Record tab.</p>';
-  $('#queueNote').textContent=queue.length?queue.length+' entries waiting to reach your sheet.':(cfg.url?'All entries sent to your sheet.':'No sheet linked yet. Entries stay on this phone.');
-}
-
-document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{
-  document.querySelectorAll('.nav button').forEach(x=>x.setAttribute('aria-selected',x===b));
-  ['rec','led','sum','set'].forEach(id=>$('#'+id).hidden=id!==b.dataset.tab);
-  $('#save').parentElement.hidden=b.dataset.tab!=='rec';
-});
-
-$('#url').value=cfg.url;$('#ccy').value=cfg.ccy;
-$('#saveSet').onclick=()=>{
-  cfg.url=$('#url').value.trim();cfg.ccy=$('#ccy').value.trim()||'RM';
-  const a=$('#addAcc').value.trim();if(a&&!cfg.accounts.includes(a))cfg.accounts.push(a);$('#addAcc').value='';
-  persist();drawChips();render();flush();toast('Setup saved');
-};
-$('#sync').onclick=()=>{flush();toast('Sending…')};
-$('#csv').onclick=()=>{
-  const rows=[['Time','Date','Type','Value','Reference','Account','Category','Status','ID'],...ledger.slice().reverse().map(x=>[x.time,x.date,x.type,x.value,x.ref,x.account,x.category,x.status,x.id])];
-  const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
-  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='ledger-'+dKey(new Date())+'.csv';a.click();
-};
-addEventListener('online',flush);
-drawChips();setType('Kredit');render();flush();
-</script>
-</body>
-</html>
+// Android Bridge: explicit user review, no silent ledger insertion.
+let bridgeUrl=sessionStorage.getItem('catat_bridge_url')||'';
+let bridgeToken=sessionStorage.getItem('catat_bridge_review')||'';
+let inboxItems=[];
+$('#bridgeUrl').value=bridgeUrl;$('#bridgeToken').value=bridgeToken;
+function bridgeStatus(msg){$('#bridgeStatus').textContent=msg}
+$('#connectBridge').onclick=()=>{let u=$('#bridgeUrl').value.trim().replace(/\/+$/,'');let t=$('#bridgeToken').value.trim();if(!/^https:\/\/[a-z0-9.-]+(?::\d+)?$/i.test(u)||!t)return toast('Enter HTTPS receiver URL and review token');bridgeUrl=u;bridgeToken=t;sessionStorage.setItem('catat_bridge_url',u);sessionStorage.setItem('catat_bridge_review',t);bridgeStatus('Connected for this browser session.');fetchInbox()};
+$('#disconnectBridge').onclick=()=>{bridgeUrl='';bridgeToken='';inboxItems=[];sessionStorage.removeItem('catat_bridge_url');sessionStorage.removeItem('catat_bridge_review');$('#bridgeToken').value='';bridgeStatus('Disconnected.');drawInbox()};
+async function bridgeRequest(path,body){if(!bridgeUrl||!bridgeToken)throw Error('Connect the Android receiver in Settings first');const r=await fetch(bridgeUrl+path,{method:body?'POST':'GET',headers:{'Authorization':'Bearer '+bridgeToken,...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{})});if(!r.ok)throw Error('Receiver error '+r.status);return r.json()}
+async function fetchInbox(){try{let r=await bridgeRequest('/api/pending');inboxItems=Array.isArray(r.items)?r.items:[];drawInbox();bridgeStatus('Receiver connected. '+inboxItems.length+' pending notifications.')}catch(e){toast(e.message);bridgeStatus(e.message)}}
+function drawInbox(){let unseen=inboxItems.filter(x=>!ledger.some(y=>y.sourceId===x.id));$('#pendingCount').textContent='('+unseen.length+')';$('#pendingInbox').innerHTML=unseen.length?unseen.map(x=>`<div class="tx"><div class="tx-main"><b>${esc(x.package)}</b><small>${esc(x.created||'')}</small><p style="white-space:pre-wrap;overflow-wrap:anywhere">${esc(x.text)}</p><div class="toolbar"><button class="btn primary" data-review="${esc(x.id)}">Review & confirm</button><button class="btn" data-dismiss="${esc(x.id)}">Dismiss</button></div></div></div>`).join(''):'<p class="empty">No pending notifications.</p>';$('#pendingInbox').querySelectorAll('[data-review]').forEach(b=>b.onclick=()=>reviewAndroid(b.dataset.review));$('#pendingInbox').querySelectorAll('[data-dismiss]').forEach(b=>b.onclick=()=>dismissAndroid(b.dataset.dismiss))}
+let activeAndroidId=null;
+function reviewAndroid(id){let item=inboxItems.find(x=>x.id===id);if(!item)return;let parsed=parseNotification(item.text);if(!parsed)return toast('No amount detected; dismiss or record manually');activeAndroidId=id;let incomeType=/\b(credited|received|deposit(?:ed)?|salary|cashback|incoming|money in)\b/i.test(item.text)&&!/\b(debited|spent|paid|purchase|payment made|withdrawn|transfer out)\b/i.test(item.text);openForm(incomeType?'Depo':'Kredit',parsed);$('#sourceBox').hidden=false}
+async function dismissAndroid(id){try{await bridgeRequest('/api/dismiss',{id,status:'dismissed'});inboxItems=inboxItems.filter(x=>x.id!==id);drawInbox();toast('Notification dismissed')}catch(e){toast(e.message)}}
+$('#refreshInbox').onclick=fetchInbox;
+// Capture confirmed Android entries through the existing form save handler.
+const originalSave=$('#entryForm').onsubmit;
+$('#entryForm').onsubmit=async function(e){if(!activeAndroidId)return originalSave.call(this,e);const id=activeAndroidId;const before=ledger.length;originalSave.call(this,e);if(ledger.length===before)return;ledger[0].sourceId=id;persist();activeAndroidId=null;try{await bridgeRequest('/api/dismiss',{id,status:'approved'});inboxItems=inboxItems.filter(x=>x.id!==id);drawInbox()}catch(err){toast('Saved locally; receiver acknowledgment failed. Retry connection.')}};
+const originalClose=$('#cancelModal').onclick;$('#cancelModal').onclick=()=>{activeAndroidId=null;originalClose()};
+if(bridgeUrl&&bridgeToken)bridgeStatus('Receiver configured for this session. Click Check Android notifications.');
+</script></body></html>
